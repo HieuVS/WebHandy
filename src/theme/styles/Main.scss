@@ -1,0 +1,98 @@
+.boxDate {
+    .MuiPickersBasePicker-pickerView-860 {
+        min-height: unset;
+        max-width: unset;
+        min-height: -webkit-fit-content;
+        min-height: -moz-fit-content;
+        min-height: fit-content;
+        max-height: 375px;
+        overflow: hidden;
+        justify-content: unset;
+    }   
+    .MuiPickersCalendarHeader-switchHeader-865 {
+        width: 100%;
+        background-color: #ef5845;
+        justify-content: center;
+        align-items: center;
+        min-height: 50px;
+        margin: 0;
+        
+    }
+    .MuiPickersCalendarHeader-switchHeader-865 >* {
+        background-color: #ef5845;
+        color: #fff;
+        margin: 0 20px;
+    }
+    .MuiPickersCalendarHeader-transitionContainer-866 {
+        width: auto;
+        height: 1.25rem;
+    }
+    .MuiPickersSlideTransition-transitionContainer-870>* {
+        position: unset;
+        width: -webkit-fit-content;
+        width: -moz-fit-content;
+        width: fit-content;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+    .MuiPickersCalendarHeader-daysHeader-868 {
+        margin-top: 10px;
+        grid-template-columns: repeat(7,minmax(20px,1fr));
+    }
+    .MuiPickersCalendarHeader-dayLabel-869 {
+        font-size: 16px;
+        font-weight: 500;
+        color: #6c7078;
+        margin: 0 7px;
+        display: grid;
+        justify-content: center;
+    }
+    .MuiPickersCalendar-transitionContainer-862 {
+        margin: 10px 57px;
+        align-self: center;
+    }
+    .MuiPickersSlideTransition-transitionContainer-870 >* {
+        position: unset;
+        width: -webkit-fit-content;
+        width: -moz-fit-content;
+        width: fit-content;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+    .MuiPickersCalendar-week-864 {
+        display: grid;
+        justify-content: center;
+        grid-template-columns: repeat(7,minmax(20px,1fr));
+    }
+    .MuiPickersDay-day-877 {
+        height: 46px;
+        width: 46px;
+    } 
+    .MuiPickersDay-day-877:hover, .MuiPickersDay-daySelected-880 {
+        background-color: rgba(239,88,69,.5);
+    }
+    .MuiPickersDay-day-877>*>p {
+        font-weight: 400;
+        font-size: 16px;
+        color: #4b4d53;
+    }
+    .MuiPickersDay-dayDisabled-881>*>p {
+        color: #979aa1;
+    }
+    .MuiPickersDay-current-879 {
+        border: 0.5px solid #4b4d53;
+        background-color: transparent;
+        color: #6c7078;
+    }
+
+}
+
+@media only screen and (max-width: 480px) {
+    .boxDate .MuiPickersCalendarHeader-switchHeader-383>* {
+        margin: 0;
+    }
+}
