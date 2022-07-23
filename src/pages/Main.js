@@ -1,11 +1,16 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, ThemeProvider, Avatar, Container, Paper, Box, Tabs, Grid, Typography, SvgIcon, Button, Tab, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import { createTheme, makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import RateDialog from "../Components/RateDialog";
-import Schedule from "../Components/Schedule";
+import Schedule from "../Components/Schedule/Schedule";
 import Order from "../Components/Order";
+import restaurantImg from '../theme/images/restaurant.jpg';
+import res2 from '../theme/images/res2.jpg';
+import TabSchedule from '../Components/TabSchedule';
+import { getItem } from "api/itemApi";
+
 
 const TabPanel = (props) => {
     const { children, value, index, ...other} = props;
@@ -27,6 +32,10 @@ const a11yProps = (index) => {
 function Main() {
     const classes = useStyle();
 
+    useEffect(()=> {
+        getItem();
+    },[])
+
     const [showModal, setShowModal] = useState(false);
     const [value, setValue] = useState(0);
 
@@ -38,6 +47,8 @@ function Main() {
         setValue(value)
         //console.log(value)
     }
+
+    
     return (
         <ThemeProvider theme={theme}>
             <link rel="preconnect" href="https://fonts.googleapis.com"></link>
@@ -45,16 +56,16 @@ function Main() {
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></link>
             <Paper className={classes.header}>
                 <Box className={classes.boxHeader}>
-                    <Avatar alt="avatar" variant="square" className={classes.avatar} src="https://api.gboss.ml/attachment/image/2/1628152941129-20210623_185840.JPG" />
+                    <Avatar alt="avatar" variant="square" className={classes.avatar} src={res2} />
                     <Container className={classes.containerAva}>
-                        <Avatar alt="avatar" variant="square" className={classes.innerAvatar} src="https://api.gboss.ml/attachment/image/2/1628152941129-20210623_185840.JPG" />
+                        <Avatar alt="avatar" variant="square" className={classes.innerAvatar} src={restaurantImg} />
                     </Container>
                 </Box>
                 <Container className={classes.containerTitle}>
                     <Box className={classes.title}>
                         <Grid container>
                             <Grid item={true} xs={12} sm={6} className={classes.titleName}>
-                                <Typography color="primary" variant="h3">bglobalcafe</Typography>
+                                <Typography color="primary" variant="h3">Handyres</Typography>
                             </Grid>
                             <Grid item={true} xs={12} sm={6} ></Grid>
                         </Grid>
@@ -94,13 +105,13 @@ function Main() {
                                         </SvgIcon>
                                     </ListItemIcon>
                                     <ListItemText>
-                                        <Typography variant="body2" className={classes.itemText}>T2 : 00:00 - 23:00</Typography>
-                                        <Typography variant="body2" className={classes.itemText}>T3 : 00:00 - 23:00</Typography>
-                                        <Typography variant="body2" className={classes.itemText}>T4 : 00:00 - 23:00</Typography>
-                                        <Typography variant="body2" className={classes.itemText}>T5 : 00:00 - 23:00</Typography>
-                                        <Typography variant="body2" className={classes.itemText}>T6 : 00:00 - 23:00</Typography>
-                                        <Typography variant="body2" className={classes.itemText}>T7 : 00:00 - 23:00</Typography>
-                                        <Typography variant="body2" className={classes.itemText}>CN : 00:00 - 23:00</Typography>
+                                        <Typography variant="body2" className={classes.itemText}>T2 : 08:00 - 23:00</Typography>
+                                        <Typography variant="body2" className={classes.itemText}>T3 : 08:00 - 23:00</Typography>
+                                        <Typography variant="body2" className={classes.itemText}>T4 : 08:00 - 23:00</Typography>
+                                        <Typography variant="body2" className={classes.itemText}>T5 : 08:00 - 23:00</Typography>
+                                        <Typography variant="body2" className={classes.itemText}>T6 : 08:00 - 23:00</Typography>
+                                        <Typography variant="body2" className={classes.itemText}>T7 : 08:00 - 23:00</Typography>
+                                        <Typography variant="body2" className={classes.itemText}>CN : 08:00 - 23:00</Typography>
                                     </ListItemText>
                                 </ListItem>
                                 <ListItem className={classes.itemList}>
@@ -161,7 +172,11 @@ function Main() {
                         </Box>
                     </Grid>
                     <TabPanel value={value} index={0}>
-                        <Schedule />
+                        <TabSchedule value={value} index={0} >
+                            <Box role="tabpanel" id="detail-tabpanel-0" >
+                                
+                            </Box>
+                        </TabSchedule>                        
                     </TabPanel>
                     <TabPanel value={value} index={1}>
                         <Order />
@@ -351,6 +366,19 @@ const theme = createTheme({
 });
 
 const useStyle = makeStyles({
+    '@global': {
+        '*::-webkit-scrollbar': {
+          width: '0.4em',
+        },
+        '*::-webkit-scrollbar-track': {
+            '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)'
+        },
+        '*::-webkit-scrollbar-thumb': {
+          borderRadius:'10px',
+          backgroundColor: '#606060',
+          //outline: '1px solid slategrey'
+        }
+      },
     header : {
         width: '100%',
         boxShadow: '0 2px 8px 0 rgb(0 0 0 / 16%)',

@@ -64,7 +64,7 @@ function Order() {
     //console.log(productItem)
     console.log("tesy: ", preOrderItem);
   };
-  console.log(": ", preOrderItem);
+  //console.log(": ", preOrderItem);
 
   return (
     <React.Fragment>
@@ -282,15 +282,7 @@ function Order() {
           </Box>
         </Box>
       </Box>
-      <OrderDialog
-        onOpen={showOrder}
-        product={item}
-        onGetItem={onGetItem}
-        onGetBill={onGetBill}
-        onClose={() => {
-          setShowOrder(false);
-        }}
-      />
+      
       <RateDialog onShow={showModal} onClose={handleClose}></RateDialog>
     </React.Fragment>
   );

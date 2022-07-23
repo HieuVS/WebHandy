@@ -26,7 +26,7 @@ function RateDialog(props) {
       >
         <DialogTitle>
           <Box className={classes.boxDialog}>
-            <Typography className={classes.titleDialog}>bglobalcafe</Typography>
+            <Typography className={classes.titleDialog}>Handyres</Typography>
             <IconButton onClick={onClose}>
               <SvgIcon component={CloseIcon} viewBox="0 0 24 24" />
             </IconButton>

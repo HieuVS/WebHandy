@@ -1,125 +1,74 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import {  Dialog, DialogTitle, SvgIcon, Box, Typography, Button, CardMedia, Checkbox, IconButton, OutlinedInput } from "@material-ui/core";
+import {  Dialog, DialogTitle, SvgIcon, Box, Typography, Button, CardMedia, IconButton, OutlinedInput, Avatar } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import { formatCash } from "utils/formatCash";
-
+import { imageToBase64 } from '../utils/imageToBase64';
+import store from "redux/store";
 
 const CustomDot = () => {
   const classes = useStyle();
   return <Box className={classes.customDot}></Box>;
 };
-const attachItem = [
-  {
-    id: 0,
-    name: "Hàng hoá 1",
-    price: 100000,
-    srcImage: "https://cons.gboss.ml/images/img-empty-image.png",
-  },
-  {
-    id: 1,
-    name: "Hàng hoá 2",
-    price: 200000,
-    srcImage: "https://cons.gboss.ml/images/img-empty-image.png",
-  },
-];
+
 function OrderDialog(props) {
   const { onOpen, onClose, product, ...other } = props;
 
   const classes = useStyle();
   const productItem = Object.assign({}, product);
-  const formatPrice = formatCash(productItem.price);
-  const money = productItem.price;
+  //console.log('productItem', productItem)
 
-  const [showModal, setShowModal] = useState(false);
-  const [checkedItem, setCheckedItem] = useState(
-    new Array(attachItem.length).fill(false)
-  );
-  const [amount, setAmount] = useState();
+  //const [amount, setAmount] = useState(productItem.price);
   const [count, setCount] = useState(1);
-  const [priceItems, setPriceItems] = useState(money);
-  const [addBill, setAddBill] = useState([]);
+  //const [priceItems, setPriceItems] = useState(money);
+  const [item, setItem] = useState({
+    name: productItem ? productItem.name : '',
+    quantity: 1,
+    price: productItem ? productItem.price : Number,
+    amount: productItem ? productItem.price : Number,
+    image: productItem.image
+  });
 
-  useEffect(() => {
-    setAmount(productItem.price);
-    setPriceItems(productItem.price);
-    //console.log("re-Render", amount)
-  }, [productItem.price]);
-
-  useEffect(() => {
-    setPriceItems(amount * count);
-  }, [amount]);
-
-  const handleModal = () => {
-    setShowModal(true);
-  };
-
-  const onCheckedItem = (position) => {
-    const updateCheckedState = checkedItem.map((item, index) =>
-      index === position ? !item : item
-    );
-    setCheckedItem(updateCheckedState);
-
-    const totalAmount = updateCheckedState.reduce(
-      (sum, currentState, index) => {
-        if (currentState) {
-          return sum + attachItem[index].price;
-        }
-        return sum;
-      },
-      productItem.price
-    );
-    setAmount(totalAmount);
-  };
 
   const onChangeCount = (event) => {
     let value = event.target.value;
-    if (parseInt(value) > 0 && parseInt(value) < 1001) {
+    if (parseInt(value) > 0 && parseInt(value) < 100) {
       setCount(value.replace(/\D/, ""));
     } else if (value === "") {
-      setCount("");
+      setCount(1);
     }
-    setPriceItems(amount * value);
-    //console.log("count: ",count)
+    //setAmount(parseInt(value)*productItem.price)
+    setItem({...item, amount: parseInt(value)*productItem.price, quantity: value })
   };
-
+  //console.log('ITEM:', item)
   const onIncrease = () => {
-    if (count < 999) {
-      setCount(count + 1);
+    if(count<100) 
+    {
+      setCount(parseInt(count)+1)
+      //setAmount((parseInt(count)+1)*productItem.price)
+      setItem({...item, amount: (parseInt(count)+1)*productItem.price, quantity: parseInt(count)+1 })
+
     }
-    //console.log(count)
-    setPriceItems(amount * (count + 1));
-  };
+  }
 
-  const onDecrease = () => {
-    if (count > 1) setCount(count - 1);
-    setPriceItems(amount * (count - 1));
-  };
+  const onDecrease= () => {
+    if(count > 1) {
+      setCount(count-1)
+       //setAmount((parseInt(count)-1)*productItem.price)
+      setItem({...item, amount: (parseInt(count)-1)*productItem.price, quantity: parseInt(count)-1 })
+    }
+  }
+
   const onAddItem = () => {
-    props.onGetItem(true);
-    //props.open = false;
+
+    store.dispatch({type: 'ADD_ITEM_SCHEDULE', payload: item})
+    onClose();
   };
 
-  const onPayment = () => {
-    let arrayOfItems = [];
-    arrayOfItems.push({
-      item: productItem.name,
-      attachedItem: [attachItem[checkedItem.indexOf(true)].name],
-      count,
-      amount,
-      priceItems,
-      vat: priceItems * 0.09,
-      payment: priceItems * 1.09,
-    });
-    //setAddBill(arrayOFItems)
-    props.onGetBill(arrayOfItems);
-    //console.log("item duoc add la: ",arrayOFItems)
-  };
-
-  //console.log("tesstL: ",checkedItem)
+  
   return (
     <React.Fragment>
       <Dialog
@@ -128,38 +77,11 @@ function OrderDialog(props) {
         PaperProps={{ className: classes.orderDialog }}
       >
         <DialogTitle style={{ width: 0, padding: 0 }}></DialogTitle>
-        <Carousel
-          responsive={responsive}
-          infinite={true}
-          autoPlay={true}
-          arrows={false}
-          showDots={true}
-          dotListClass="backgroundColor: '#EF5845'"
-          customDot={<CustomDot />}
-        >
-          <div style={{ width: "100%", height: "100%" }}>
-            <iframe
-              frameBorder="0"
-              allowFullScreen="1"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              title="YouTube video player"
-              width="100%"
-              height="100%"
-              src="https://www.youtube.com/embed/fjnsranSObI?autoplay=0&amp;mute=0&amp;controls=0&amp;start=1486&amp;origin=https%3A%2F%2Fcons.gboss.ml&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;iv_load_policy=3&amp;modestbranding=1&amp;enablejsapi=1&amp;widgetid=9"
-              id="widget10"
-            ></iframe>
-          </div>
           <CardMedia
             component="img"
+            src={!productItem.image ? '' : `data:image/png;base64, ${imageToBase64(productItem.image.data.data)}`}
             className={classes.imgCarosel}
-            src="https://api.gboss.ml/attachment/image/2/1640316229641-20210623_185840.JPG"
           ></CardMedia>
-          <CardMedia
-            component="img"
-            className={classes.imgCarosel}
-            src="https://api.gboss.ml/attachment/image/2/1640316229642-Untitled.png"
-          ></CardMedia>
-        </Carousel>
         <Box className={classes.detailOrder}>
           <Typography variant="h5" className={classes.itemName}>
             {productItem.name}
@@ -176,7 +98,6 @@ function OrderDialog(props) {
             <Typography className={classes.iconPoint}>0</Typography>
             <Box className={classes.partition}></Box>
             <Button
-              onClick={handleModal}
               label="true"
               className={clsx(classes.btnRate, classes.btnRoot)}
             >
@@ -184,7 +105,7 @@ function OrderDialog(props) {
             </Button>
           </Box>
           <Typography variant="h4" className={classes.price}>
-            {formatPrice}đ
+            {formatCash(productItem.price)}đ
           </Typography>
           <Typography
             variant="body1"
@@ -192,47 +113,22 @@ function OrderDialog(props) {
           ></Typography>
           <Box className={classes.selectedItem}>
             <Box className={classes.promptBox}>
-              <Box className={classes.iconPrompt}>
-                <SvgIcon>
-                  <path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"></path>
-                </SvgIcon>
-              </Box>
-              <Typography
-                className={classes.titlePrompt}
-                color="inherit"
-                variant="body1"
-              >
-                Chọn dịch vụ và mặt hàng đi kèm
-              </Typography>
-            </Box>
-            {attachItem.map((item, index) => (
-              <Box className={classes.itemBox} key={index}>
-                <CardMedia
-                  component="img"
-                  className={classes.imgItem}
-                  src="https://cons.gboss.ml/images/img-empty-image.png"
-                ></CardMedia>
-                <Box className={classes.itemDetail}>
+              <Box>
+                <Box className={classes.boxDes}>
+                  <SvgIcon className={classes.iconPrompt}>
+                    <path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"></path>
+                  </SvgIcon>
                   <Typography
+                    className={classes.titlePrompt}
+                    color="inherit"
                     variant="body1"
-                    className={clsx(classes.productName, classes.textName)}
                   >
-                    {item.name}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    className={clsx(classes.productPrice, classes.textPrice)}
-                  >
-                    {formatCash(item.price)}đ
+                    Mô tả
                   </Typography>
                 </Box>
-                <Checkbox
-                  onChange={() => onCheckedItem(index)}
-                  className={classes.checkBox}
-                  checked={checkedItem[index]}
-                ></Checkbox>
+                <Typography className={classes.contentDes}>{productItem.description}</Typography>
               </Box>
-            ))}
+            </Box>
           </Box>
         </Box>
         <Box className={classes.totalMoney}>
@@ -241,7 +137,7 @@ function OrderDialog(props) {
               Thành tiền
             </Typography>
             <Typography variant="h5" component="h5">
-              {priceItems}đ
+              {formatCash(item.amount)}đ
             </Typography>
           </Box>
           <Box className={classes.amount}>
@@ -266,7 +162,6 @@ function OrderDialog(props) {
               className={classes.btnAddPrice}
               onClick={() => {
                 onAddItem();
-                onPayment();
               }}
               variant="contained"
               color="primary"
@@ -286,6 +181,12 @@ const useStyle = makeStyles({
     position: "relative",
     minWidth: "620px",
     maxHeight: "665px",
+    '&::-webkit-scrollbar': {
+      width: '10px',
+      background: '#888',
+      borderRadius: '10px',
+      //height: '80%'
+    }
   },
   reactMultiCarouselList: {
     display: "flex",
@@ -364,7 +265,7 @@ const useStyle = makeStyles({
     justifyContent: "flex-start",
   },
   price: {
-    marginTop: "12px",
+    marginTop: "8px",
     textAlign: "center",
   },
   hiddenText: {
@@ -373,14 +274,14 @@ const useStyle = makeStyles({
     "-webkit-line-clamp": 4,
   },
   selectedItem: {
-    padding: "24px 50px",
-    marginTop: "36px",
+    padding: "20px 20px",
     backgroundColor: "#FAFAFB",
+    width: '70%'
   },
   promptBox: {
     color: "#6c7078",
     display: "flex",
-    alignItems: "center",
+    justifyContent: "center",
     marginBottom: "16px",
   },
   itemBox: {
@@ -391,6 +292,11 @@ const useStyle = makeStyles({
     marginBottom: "8px",
     justifyContent: "space-between",
   },
+  boxDes: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   iconPrompt: {
     color: "#6C7078",
     width: "36px",
@@ -398,10 +304,15 @@ const useStyle = makeStyles({
     display: "flex",
     boxShadow: "1px 0 4px 0 rgb(0 0 0 / 16%)",
     alignItems: "center",
-    marginRight: "8px",
+    marginRight: "14px",
     borderRadius: "50%",
     justifyContent: "center",
     backgroundColor: "#FFFFFF",
+  },
+  contentDes: {
+    marginTop: '10px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
   },
   titlePrompt: {
     fontSize: "16px!important",

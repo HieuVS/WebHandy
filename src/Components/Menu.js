@@ -1,13 +1,17 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useState, forwardRef } from "react";
-import { Dialog, OutlinedInput, Box, Tabs, Typography, SvgIcon, Button, Tab, InputAdornment, makeStyles, IconButton, CardMedia } from "@material-ui/core";
+import { Dialog, Box, Tabs, Typography, SvgIcon, Button, Tab, makeStyles, IconButton, CardMedia } from "@material-ui/core";
 import clsx from 'clsx';
 import CloseIcon from '@material-ui/icons/Close';
-import OrderDialog from "./OrderDialog";
 import { formatCash } from "utils/formatCash";
+import { useSelector } from 'react-redux'
+import ItemList from "./ItemList";
+import { imageToBase64 } from "utils/imageToBase64";
+import cart from '../theme/images/cart.png'
+import store from "redux/store";
 
 const TabScrollButton = forwardRef((props, ref) => {
-    const { direction, ...other } = props;
+    const { direction } = props;
     const classes = useStyle();
     return (
         <IconButton
@@ -25,74 +29,36 @@ const TabScrollButton = forwardRef((props, ref) => {
     );
 });
 
-const listItem = [
-    {
-        id: 0,
-        name: 'Hàng hoá 1',
-        price: 100000,
-        srcImage: "https://api.gboss.ml/attachment/image/2/1640316229641-20210623_185840.JPG"
-    },
-    {
-        id: 1,
-        name: 'Hàng hoá 2',
-        price: 200000,
-        srcImage: "https://cons.gboss.ml/images/img-empty-image.png",
-    },
-]
-
 
 function Menu(props) {
-  const { onShow, onClose, ...other } = props;
-
-  const [value, setValue] = useState(0);
-  const [openOrderDialog, setOpenOrderDialog] = useState(false);
-  const [item, setItem] = useState();
-  const [hasPreOrder, setHasPreOrder] = useState(false);
-  const [preOrderItem, setPreOrderItem] = useState([]);
-
+  const { onShow, onClose } = props;
   const classes = useStyle();
+  
+  const [value, setValue] = useState(0);
+  //const [item, setItem] = useState();
+  const [hasPreOrder, setHasPreOrder] = useState(false);
 
-  const onOpenOrderDialog = (id) => {
-    const arrayItem = listItem[id];
-    setItem(arrayItem);
-    setOpenOrderDialog(true);
-    //console.log("item Added is: ", listItem[id])
-  };
+  const scheduleItem = useSelector(state => state.schedule).items;
+  console.log('schedule:', scheduleItem);
 
   const onClosePreOrder = () => {
     setHasPreOrder(false);
-    setPreOrderItem([]);
   };
 
-  const onGetItem = (hasOrNot) => {
-    setHasPreOrder(hasOrNot);
-    setOpenOrderDialog(false);
+  
+  var sum = 0;
+  for(let i= 0; i< scheduleItem.length; i++ ) {
+    sum += scheduleItem[i].amount
+  }
+  //console.log("SUMMMMMMM: ", sum);
+
+  const onGetBill = () => {
+    store.dispatch({type: 'ADD_PAYMENT', payload: sum});
+    onClose();
   };
 
-  const onGetBill = (item) => {
-    //const productItem = JSON.parse(JSON.stringify(item))
-    setPreOrderItem(item);
-    //const product = Object.assign({}, item);
-    //console.log(productItem)
-    console.log("tesy: ", preOrderItem);
-  };
-  console.log(": ", preOrderItem);
 
-  const onSetOrderSchedule = () => {
-    let arrayItems = [];
-    arrayItems.push({
-      name: preOrderItem[0].item,
-      attachedItem: preOrderItem[0].attachedItem,
-      count: preOrderItem[0].count,
-      amount: preOrderItem[0].amount,
-      priceBill: preOrderItem[0].count * preOrderItem[0].amount,
-      vat: preOrderItem[0].priceItems * 0.09,
-      payment: preOrderItem[0].priceItems * 1.09,
-    });
-    //setAddBill(arrayOFItems)
-    props.onPreOrder(arrayItems);
-    //props.onGetItem(true);
-  };
+
 
   return (
     <Dialog open={onShow} onClose={onClose} fullScreen={true} maxWidth="sm">
@@ -128,105 +94,7 @@ function Menu(props) {
                 className={clsx(classes.btnCategory, classes.titleTab)}
               />
             </Tabs>
-            <Box className={classes.productCategory}>
-              <Box
-                className={clsx(classes.boxCategory, classes.innerCategory)}
-                id="product_menu_root"
-              >
-                <OutlinedInput
-                  placeholder="Tìm kiếm"
-                  className={clsx(classes.inputSearch, classes.inputFilter)}
-                  inputProps={{ className: classes.inputTextSearch }}
-                  startAdornment={
-                    <InputAdornment
-                      position="start"
-                      className={classes.inputIcon}
-                    >
-                      <SvgIcon viewBox="0 0 24 24" className={classes.svgIcon}>
-                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-                      </SvgIcon>
-                    </InputAdornment>
-                  }
-                ></OutlinedInput>
-                <Box style={{ marginTop: "unset" }}>
-                  <Typography
-                    variant="h4"
-                    component="h4"
-                    className={classes.titleCategory}
-                  >
-                    Danh mục 1
-                  </Typography>
-                  <Box className={classes.listProduct}>
-                    {listItem.map((item, id) => (
-                      <Box className={classes.productItem} key={id}>
-                        <Box className={classes.boxImg}>
-                          <CardMedia
-                            className={classes.imgItem}
-                            component="img"
-                            src={item.srcImage}
-                          ></CardMedia>
-                        </Box>
-                        <Box className={classes.infoItem}>
-                          <Box className={classes.titleInfo}>
-                            <Typography
-                              variant="body1"
-                              className={classes.titleItem}
-                            >
-                              {item.name}
-                            </Typography>
-                          </Box>
-                          <Box className={classes.ratingBox}>
-                            <SvgIcon
-                              className={classes.iconRate}
-                              focusable={false}
-                              viewBox="0 0 24 24"
-                              aria-hidden="true"
-                            >
-                              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
-                            </SvgIcon>
-                            <Typography
-                              className={clsx(classes.iconPoint, classes.point)}
-                            >
-                              0
-                            </Typography>
-                            <Box className={classes.partition}></Box>
-                            <Button //onClick={handleModal}
-                              label="true"
-                              className={clsx(classes.btnRate, classes.btnRoot)}
-                            >
-                              0 đánh giá
-                            </Button>
-                          </Box>
-                          <Typography
-                            className={classes.space}
-                            variant="body1"
-                          ></Typography>
-                          <Box className={classes.orderInfo}>
-                            <Box className={classes.boxPrice}>
-                              <Box className={classes.blueBox}></Box>
-                              <Typography
-                                variant="body1"
-                                className={classes.price}
-                              >
-                                {formatCash(item.price)}đ
-                              </Typography>
-                            </Box>
-                          </Box>
-                        </Box>
-                        <Box className={classes.btnPickBox}>
-                          <Button
-                            onClick={() => onOpenOrderDialog(id)}
-                            className={classes.btnAddItem}
-                          >
-                            Chọn
-                          </Button>
-                        </Box>
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
+            <ItemList />
           </Box>
           <Box className={classes.orderMenu}>
             <Box className={classes.orderBoxHeader}>
@@ -251,10 +119,9 @@ function Menu(props) {
                 !hasPreOrder ? classes.Image : null
               )}
             >
-              {typeof preOrderItem !== "undefined" &&
-              preOrderItem.length > 0 ? (
-                <Box className={classes.itemPreOrder}>
-                  {console.log(preOrderItem)}
+              {typeof scheduleItem !== "undefined" &&
+              scheduleItem.length > 0 ? scheduleItem.map((item,index) => 
+                <Box className={classes.itemPreOrder} key={index}>
                   <SvgIcon
                     className={classes.preOrderClose}
                     onClick={onClosePreOrder}
@@ -265,7 +132,7 @@ function Menu(props) {
                     <CardMedia
                       style={{ width: "40px", height: "40px" }}
                       component="img"
-                      src="https://api.gboss.ml/attachment/image/2/1640316229641-20210623_185840.JPG"
+                      src={!item.image ? '' : `data:image/png;base64, ${imageToBase64(item.image.data.data)}`}
                     ></CardMedia>
                   </Box>
                   <Box className={classes.detailItem}>
@@ -275,12 +142,9 @@ function Menu(props) {
                         variant="subtitle2"
                         className={classes.titleFont}
                       >
-                        {preOrderItem[0].item}
+                        {item.name}
                       </Typography>
                     </Box>
-                    <Typography variant="body1" className={classes.itemList}>
-                      {preOrderItem[0].attachedItem}
-                    </Typography>
                     <Box className={classes.itemPrice}>
                       <Box className={classes.change}>
                         <Typography
@@ -297,7 +161,7 @@ function Menu(props) {
                       variant="subtitle2"
                       className={classes.countPrice}
                     >
-                      {preOrderItem[0].count} x{preOrderItem[0].amount}
+                      {item.quantity} x{formatCash(item.price)}
                     </Typography>
                   </Box>
                 </Box>
@@ -305,7 +169,7 @@ function Menu(props) {
                 <CardMedia
                   className={classes.imgOrder}
                   component="img"
-                  src="https://cons.gboss.ml/images/img-empty-cart.png"
+                  src={`${cart}`}
                 ></CardMedia>
               )}
             </Box>
@@ -313,9 +177,9 @@ function Menu(props) {
               <Box className={clsx(classes.money, classes.totalMoney)}>
                 <Typography variant="body1">Tổng tiền:</Typography>
                 <Typography variant="body1" className={classes.moneyAmount}>
-                  {typeof preOrderItem !== "undefined" &&
-                  preOrderItem.length > 0
-                    ? preOrderItem[0].priceItems
+                  {typeof scheduleItem !== "undefined" &&
+                  scheduleItem.length > 0
+                    ? formatCash(sum)
                     : 0}
                   đ
                 </Typography>
@@ -323,11 +187,10 @@ function Menu(props) {
               <Box className={clsx(classes.money, classes.billVAT)}>
                 <Typography variant="body1">VAT:</Typography>
                 <Typography variant="body1" className={classes.moneyAmount}>
-                  {typeof preOrderItem !== "undefined" &&
-                  preOrderItem.length > 0
-                    ? preOrderItem[0].vat
+                  {typeof scheduleItem !== "undefined" &&
+                  scheduleItem.length > 0
+                    ? '10%'
                     : 0}
-                  đ
                 </Typography>
               </Box>
               <Box className={classes.line}></Box>
@@ -336,29 +199,20 @@ function Menu(props) {
                   Phải thanh toán
                 </Typography>
                 <Typography variant="body1" className={classes.paymentAmount}>
-                  {typeof preOrderItem !== "undefined" &&
-                  preOrderItem.length > 0
-                    ? preOrderItem[0].payment
+                  {typeof scheduleItem !== "undefined" &&
+                  scheduleItem.length > 0
+                    ? formatCash(sum*11/10)
                     : 0}
                   đ
                 </Typography>
               </Box>
             </Box>
-            <Button className={classes.btnOrder} onClick={onSetOrderSchedule}>
+            <Button className={classes.btnOrder} onClick={onGetBill}>
               Đặt trước
             </Button>
           </Box>
         </Box>
       </Box>
-      <OrderDialog
-        onOpen={openOrderDialog}
-        product={item}
-        onGetItem={onGetItem}
-        onGetBill={onGetBill}
-        onClose={() => {
-          setOpenOrderDialog(false);
-        }}
-      />
     </Dialog>
   );
 }
@@ -516,7 +370,7 @@ const useStyle = makeStyles((theme) => ({
     justifyContent: "space-between",
   },
   imgItem: {
-    height: "127px",
+    height: "170px",
     maxWidth: "100%",
     minHeight: "127px",
     objectFit: "fill",
@@ -660,7 +514,7 @@ const useStyle = makeStyles((theme) => ({
   },
   Image: {
     alignItems: "center",
-    justifyContent: "center",
+    //justifyContent: "center",
   },
   itemPreOrder: {
     width: "95%",
@@ -793,17 +647,7 @@ const useStyle = makeStyles((theme) => ({
     textAlign: "center",
     justifyContent: "center",
   },
-  space: {
-    height: "40px",
-    display: "-webkit-box",
-    overflow: "hidden",
-    fontSize: "12px",
-    marginTop: "8px",
-    lineHeight: "20px",
-    textOverflow: "ellipsis",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 2,
-  },
+
   btnPickBox: {
     height: "56px",
     padding: "16px",
