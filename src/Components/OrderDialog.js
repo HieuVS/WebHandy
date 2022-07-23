@@ -15,7 +15,7 @@ const CustomDot = () => {
 };
 
 function OrderDialog(props) {
-  const { onOpen, onClose, product, ...other } = props;
+  const { onOpen, onClose, product, type, ...other } = props;
 
   const classes = useStyle();
   const productItem = Object.assign({}, product);
@@ -63,8 +63,8 @@ function OrderDialog(props) {
   }
 
   const onAddItem = () => {
-
-    store.dispatch({type: 'ADD_ITEM_SCHEDULE', payload: item})
+    if(type==='schedule') store.dispatch({type: 'ADD_ITEM_SCHEDULE', payload: item})
+    else store.dispatch({type: 'ADD_ITEM_ORDER', payload: item})
     onClose();
   };
 

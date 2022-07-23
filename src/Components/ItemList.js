@@ -124,6 +124,7 @@ export default function ItemList() {
                             <OrderDialog
                               onOpen={openOrderDialog[item._id] ? true : false}
                               product={item}
+                              type='schedule'
                               onClose={() => 
                               setOpenOrderDialog({[item._id]: false})
                               }
@@ -208,6 +209,7 @@ export default function ItemList() {
                             <OrderDialog
                               onOpen={openOrderDialog[item._id] ? true : false}
                               product={item}
+                              type='schedule'
                               onClose={() => 
                               setOpenOrderDialog({[item._id]: false})
                               }
@@ -292,6 +294,7 @@ export default function ItemList() {
                             <OrderDialog
                               onOpen={openOrderDialog[item._id] ? true : false}
                               product={item}
+                              type='schedule'
                               onClose={() => 
                               setOpenOrderDialog({[item._id]: false})
                               }
@@ -376,6 +379,7 @@ export default function ItemList() {
                             <OrderDialog
                               onOpen={openOrderDialog[item._id] ? true : false}
                               product={item}
+                              type='schedule'
                               onClose={() => 
                               setOpenOrderDialog({[item._id]: false})
                               }

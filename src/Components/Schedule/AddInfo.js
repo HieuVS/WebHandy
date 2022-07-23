@@ -1,6 +1,6 @@
 import React from "react";
-import { useState } from "react";
-import { Dialog, Paper, Box, Grid, Typography, Button, OutlinedInput, InputAdornment,
+//import { useState } from "react";
+import {  Paper, Box, Grid, Typography, Button, OutlinedInput, InputAdornment,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined';
@@ -33,9 +33,13 @@ function AddInfo({ setTab }) {
   
   
   const onSubmit = async () => {
+    let itemScheduleList = scheduleItem.map(item=> {
+      delete item.image
+      return item
+    });
     const scheduleForm = {
       table: table.table,
-      items: scheduleItem,
+      items: itemScheduleList,
       tax: 0.1,
       customer: info.customer,
       isTakeAway: false,

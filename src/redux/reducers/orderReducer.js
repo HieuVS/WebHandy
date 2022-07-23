@@ -1,19 +1,16 @@
 const initialState = {
-    order: []
+    items: []
 };
 
 
 const orderReducer = (state = initialState, action) => {
     const { type, payload } = action;
     switch(type) {
-        case 'LOAD_ORDER_LIST': 
+        case 'ADD_ITEM_ORDER': 
         return {
-
-        }
-        case 'POST_ORDER': 
-        return {
-
-        }
+            ...state,
+            items: [...state.items, payload]
+        } 
         case 'DELETE_ORDER': 
         return {
 

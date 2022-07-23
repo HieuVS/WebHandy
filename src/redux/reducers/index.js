@@ -5,6 +5,7 @@ import itemReducer from './itemReducer';
 import paymentReducer from './paymentReducer';
 import tableReducer from './tableReducer';
 import infoReducer from './infoReducer';
+import inputOrderReducer from './inputOrderReducer';
 
 const rootReducer = combineReducers({
     schedule: scheduleReducer,
@@ -12,7 +13,8 @@ const rootReducer = combineReducers({
     item: itemReducer,
     payment: paymentReducer,
     table: tableReducer,
-    info: infoReducer
+    info: infoReducer,
+    inputOrder: inputOrderReducer
 });
 
 export default rootReducer;
