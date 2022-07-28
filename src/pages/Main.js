@@ -81,11 +81,11 @@ function Main() {
                     <Box className={classes.description}>
                         <Grid container>
                             <Grid item={true} xs={12} sm={12} className={classes.gridDescription}>
-                                <Typography variant='body1' className={classes.descriptionText}>Cua hang thong tin duoc mo ta o day</Typography>
+                                <Typography variant='body1' className={classes.descriptionText}>Best restaurant in the town</Typography>
                             </Grid>
                         </Grid>
                     </Box>
-                    <Tabs value={value} onChange={handleTabs}>
+                    <Tabs value={value} onChange={handleTabs} >
                         <Tab className={clsx(classes.tabRoot, classes.orderTab)} label="Đặt lịch" {...a11yProps(0)}></Tab>
                         <Tab className={clsx(classes.tabRoot, classes.orderTab)} label="Đặt hàng" {...a11yProps(1)}></Tab>
                         <Tab className={clsx(classes.orderTab, classes.tabRoot)} label="Tin tức" {...a11yProps(2)}></Tab>
@@ -121,7 +121,7 @@ function Main() {
                                         </SvgIcon>
                                     </ListItemIcon>
                                     <ListItemText>
-                                        <Typography variant="body2">0343772920</Typography>
+                                        <Typography variant="body2">0367777777</Typography>
                                     </ListItemText>
                                 </ListItem>
                                 <ListItem className={classes.itemList}>
@@ -131,7 +131,7 @@ function Main() {
                                         </SvgIcon>
                                     </ListItemIcon>
                                     <ListItemText>
-                                        <Typography variant="body2">CIC 219 TrungKinh</Typography>
+                                        <Typography variant="body2">Landmark Tower 72</Typography>
                                     </ListItemText>
                                 </ListItem>
                                 <ListItem className={classes.itemList}>
@@ -141,8 +141,8 @@ function Main() {
                                         </SvgIcon>
                                     </ListItemIcon>
                                     <ListItemText>
-                                        <Link href="https://gboss.io" target="_blank" rel="noopener noreferrer">
-                                            <Typography variant="body2" color="inherit">https://gboss.io</Typography>
+                                        <Link href="https://uet.vnu.edu.vn/" target="_blank" rel="noopener noreferrer">
+                                            <Typography variant="body2" color="inherit">https://uet.vnu.edu.vn/</Typography>
                                         </Link>                        
                                     </ListItemText>
                                 </ListItem>
@@ -165,7 +165,7 @@ function Main() {
                                         </SvgIcon>
                                     </ListItemIcon>
                                     <ListItemText>
-                                        <Typography variant="body2">bgcafe@gmail.com</Typography>
+                                        <Typography variant="body2">hieuvs.9120@gmail.com</Typography>
                                     </ListItemText>
                                 </ListItem>
                             </Paper>
