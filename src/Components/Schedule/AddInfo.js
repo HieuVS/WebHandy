@@ -7,27 +7,60 @@ import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined'
 import PhoneInTalkOutlinedIcon from '@material-ui/icons/PhoneInTalkOutlined';
 import HomeOutlinedIcon from '@material-ui/icons/HomeOutlined';
 import clsx from "clsx";
+import { useState, useEffect } from "react";
 import "../../theme/styles/Main.scss";
 import { useSelector } from "react-redux";
 import store from "redux/store";
 import { postSchedule } from "api/scheduleApi";
 import createUUID from '../../utils/createUUID'
+import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
+import { getDiscount } from '../../api/discountApi';
 
 function AddInfo({ setTab }) {
   const classes = useStyle();
   const inputText = classes.inputText;
+
+  const [haveDiscount, setHaveDiscount] = useState();
+  const [discount, setDiscount] = useState()
+  const [inputDiscount, setInputDiscount] = useState('');
+  const [warning, setWarning] = useState(false);
+
+  useEffect(() => {
+    getDiscount();
+  }, []);
+  const discountList = useSelector((state) => state.discount);
+  console.log('discountList',discountList)
+  
   const info = useSelector(state => state.info);
-  console.log('info',info)
+  //console.log('info',info)
 
   const scheduleItem = useSelector(state => state.schedule).items;
-  console.log('schedule:', scheduleItem);
+  //console.log('schedule:', scheduleItem);
 
   const totalAmount = useSelector(state=>state.payment).totalAmount;
-  console.log('totalAmount: ', totalAmount)
+  //console.log('totalAmount: ', totalAmount)
 
   const table = useSelector(state => state.table).table
-  console.log('table: ', table)
+  //console.log('table: ', table)
   
+  const onCheckDiscount = () => {
+    let checkDiscount = discountList.discounts.findIndex(item => item.code.includes(inputDiscount))
+    if(checkDiscount !== -1) { //co Discount
+      let percent = discountList.discounts[checkDiscount];
+      console.log('percent', percent);
+      setDiscount(percent);
+      setHaveDiscount(true);
+      //setAmount(tamTinh - Math.round(tamTinh*percent.discount))
+      setInputDiscount("");
+    }  
+    else {
+      setDiscount(false);
+      setWarning(true);
+      setTimeout(() => setWarning(false), 3000);
+      setInputDiscount("");
+      
+    }
+  }
 
   const uuid = createUUID();
   
@@ -37,15 +70,30 @@ function AddInfo({ setTab }) {
       delete item.image
       return item
     });
-    const scheduleForm = {
-      table: table.table,
-      items: itemScheduleList,
-      tax: 0.1,
-      customer: info.customer,
-      isTakeAway: false,
-      totalAmount: totalAmount*11/10,
-      tableId: uuid
+    var scheduleForm = {}
+    if(!haveDiscount) {
+      scheduleForm = {
+        table: table.table,
+        items: itemScheduleList,
+        tax: 0.1,
+        customer: info.customer,
+        isTakeAway: false,
+        totalAmount: totalAmount*11/10,
+        tableId: uuid
+      }
+    } else {
+      scheduleForm = {
+        table: table.table,
+        items: itemScheduleList,
+        tax: 0.1,
+        customer: info.customer,
+        isTakeAway: false,
+        totalAmount: (totalAmount- totalAmount*discount.discount)*11/10,
+        tableId: uuid,
+        discount: discount.discount
+      }
     }
+    //let finalForm = {...scheduleForm, delete discount }
     try {
       const response = await postSchedule(scheduleForm);
       if(!response) {
@@ -170,6 +218,31 @@ function AddInfo({ setTab }) {
                     </InputAdornment>
                   }
                 ></OutlinedInput>
+                <Box style={{display: 'flex', alignItems: 'center'}}>
+                  <OutlinedInput
+                    placeholder="Mã giảm giá"
+                    fullWidth={true}
+                    onChange={(e)=>setInputDiscount(e.target.value)}
+                    value={inputDiscount}
+                    name="address"
+                    className={clsx(classes.inputPeopleCount, classes.inputFont)}
+                    inputProps={{ className: inputText }}
+                    startAdornment={
+                      <InputAdornment
+                        position="start"
+                        className={classes.inputIcon}
+                      >
+                        <AttachMoneyIcon />
+                      </InputAdornment>
+                    }
+                  ></OutlinedInput>
+                  <Button variant="outlined" onClick={onCheckDiscount} className={classes.btnApplyDiscount}>Apply</Button>
+                </Box>
+                  {warning ? (
+                  <Box className={classes.warningDiscount}>
+                    <Typography className={classes.warningContent}>*Mã giảm giá không hợp lệ</Typography>
+                  </Box>
+                  ) : ''}
               </Grid>
             </Paper>
             <Grid item={true} xs={12}>
@@ -699,6 +772,12 @@ const useStyle = makeStyles((theme) => ({
     color: "#EF5845",
     marginLeft: "auto",
   },
+  btnApplyDiscount: {
+    marginLeft: '10px',
+    height: '50px',
+    backgroundColor: '#EF5845',
+    color: '#fff'
+  }
 }));
 
 export default AddInfo;

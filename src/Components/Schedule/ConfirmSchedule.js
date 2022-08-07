@@ -90,18 +90,26 @@ function ConfirmSchedule({ setTab }) {
               }
             <Box className={classes.boxAmount}>
               <Typography variant="h6">Tạm tính</Typography>              
-              <Typography variant="h6">{formatCash(myData.totalAmount*10/11)}đ</Typography>
+              <Typography variant="h6">{formatCash(myData.totalAmount)}đ</Typography>
             </Box>
             {
               <Box>
+                {
+                  myData?.discount ? (
+                  <Box className={classes.boxAmount}>
+                    <Typography variant="h6">Bạn được giảm</Typography>    
+                    <Typography variant="h6" style={{marginLeft: '60px'}}>{myData.discount*100}%</Typography>              
+                  </Box>
+                  ) : ''
+                }
+                {/* <Box className={classes.boxAmount}>
+                  <Typography variant="h6">Thành Tiền</Typography>
+                  <Typography variant="h6">{formatCash(myData.totalAmount-myData)}đ</Typography>
+                </Box>      */}
                 <Box className={classes.boxAmount}>
                   <Typography variant="h6">Thuế</Typography>
                   <Typography variant="h6">10%</Typography>
                 </Box>
-                <Box className={classes.boxAmount}>
-                  <Typography variant="h6">Thành Tiền</Typography>
-                  <Typography variant="h6">{formatCash(myData.totalAmount)}đ</Typography>
-                </Box>     
                 <Box className={classes.boxAmount}>
                   <Typography variant="h6">Tổng tiền cần thanh toán</Typography>
                   <Typography variant="h6">{formatCash(myData.totalAmount)}đ</Typography>

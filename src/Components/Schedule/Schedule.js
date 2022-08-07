@@ -12,6 +12,7 @@ import { useSelector } from "react-redux";
 import { formatCash } from "utils/formatCash";
 import { imageToBase64 } from "utils/imageToBase64";
 import store from "redux/store";
+import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 
 function Schedule({setTab}) {
   const classes = useStyle();

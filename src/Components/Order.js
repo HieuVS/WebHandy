@@ -1,6 +1,6 @@
 import React from "react";
 import { forwardRef, useState } from "react";
-import {  Box, Tabs, Typography, SvgIcon, Tab, InputAdornment, IconButton, OutlinedInput, CardMedia, Button, Avatar, Paper, Grid } from "@material-ui/core";
+import {  Box, Tabs, Typography, SvgIcon, Tab, InputAdornment, IconButton, OutlinedInput, CardMedia, Button, Avatar, Paper, Grid, List, ListItem } from "@material-ui/core";
 import {  makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import OrderDialog from "./OrderDialog";
@@ -36,7 +36,7 @@ function Order() {
   const inputText = classes.inputText;
   const [value, setValue] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [openInfo, setOpenInfo] = useState(true);
+  const [openInfo, setOpenInfo] = useState(false);
   const [submitted, setSubmitted] = useState(false)
   const items = useSelector(state => state.item)
   const { items: itemList } = items;
@@ -44,7 +44,7 @@ function Order() {
 
   const itemOrder = useSelector(state => state.order).items;
   console.log('itemOrder: ', itemOrder);
-  
+  const totalAmount = useSelector(state=>state.payment).totalAmount;
 
   const appetizer = itemList ? itemList.filter((items)=> items.category==="62d101d59bec899dad2a626a") : [];
   const mainCourse = itemList ? itemList.filter((items)=> items.category==="62d101c59bec899dad2a6269") : [];
@@ -52,46 +52,63 @@ function Order() {
   const drinkItem = itemList ? itemList.filter((items)=> items.category==="62d101ed9bec899dad2a626c") : [];
 
   const [openOrderDialog, setOpenOrderDialog] = useState({});
-
+  const [orderSuccess, setOrderSuccess] = useState(false);
   const info = useSelector(state => state.inputOrder);
-  
+  const [orderPayment, setOrderPayment] = useState();
   console.log('info',info)
 
-  const onFillInfo = () => {
-    setOpenInfo(true)
-  }
-
+  
   
   const onSubmit = async () => {
     let itemOrderList = itemOrder.map(item=> {
       delete item.image
       return item
     });
-
+    
     const orderForm = {
       items: itemOrderList,
-      phone: info.customer.phone,
-      name: info.customer.name,
-      address: info.customer.address,
+      customer: {
+        phone: info.customer.phone,
+        name: info.customer.name,
+        address: info.customer.address,
+      },
       isTakeAway: true,
+      tax: 0.1,
+      totalAmount: totalAmount*11/10
     }
+
     try {
       const response = await postOrder(orderForm);
       if(!response) {
         console.log("LOI R")
       }
       else {
-        localStorage.setItem('Order', JSON.stringify(orderForm))
+        localStorage.setItem('Order', JSON.stringify(orderForm));
+        setOrderSuccess(true)
+        setOrderPayment(JSON.parse(localStorage.getItem('Order')) );
       }
-      } catch (error) {
+    } catch (error) {
       console.log('ERROR: ', error)
     }
-
+    
   };
-
+  
   const onChangeForm = (event) => {
     store.dispatch({type: 'ADD_INFO_ORDER', payload: {...info.customer, [event.target.name]: event.target.value}} )
   }
+  
+  var sum = 0;
+  for(let i= 0; i< itemOrder.length; i++ ) {
+    sum += itemOrder[i].amount
+  }
+  console.log("SUMMMMMMM: ", sum);
+  
+  const onFillInfo = () => {
+    setOpenInfo(true);
+    store.dispatch({type: 'ADD_PAYMENT', payload: sum});
+    //onClose();
+  }
+  
   return (
     <React.Fragment>
       <Box id="detail-tabpanel-1">
@@ -511,86 +528,156 @@ function Order() {
               </Box>
             </Box>  
           ) : (
-            <Box style={{ width: "100%" }}>
-              <Grid container spacing={2} className={classes.gridForm}>
-            <Paper elevation={1} className={classes.orderPaper} square={false}>
-              <Typography className={classes.titleDetail}>
-                Thông tin liên hệ
-              </Typography>
-              <Grid item xs={8} className={classes.orderInfo}>
-                <OutlinedInput
-                  placeholder="Họ và tên *"
-                  fullWidth={true}
-                  onChange={onChangeForm}
-                  name="name"
-                  value={info.name}
-                  className={clsx(classes.inputPeopleCount, classes.inputFont)}
-                  required={true}
-                  inputProps={{ className: inputText }}
-                  startAdornment={
-                    <InputAdornment
-                      position="start"
-                      className={classes.inputIcon}
-                    >
-                      <AccountCircleOutlinedIcon />
-                    </InputAdornment>
-                  }
-                ></OutlinedInput>
-                <OutlinedInput
-                  placeholder="Số điện thoại *"
-                  fullWidth={true}
-                  required={true}
-                  type="number"
-                  onChange={onChangeForm}
-                  name="phone"
-                  value={info.phone}
-                  className={clsx(classes.inputPeopleCount, classes.inputFont)}
-                  inputProps={{ className: inputText }}
-                  startAdornment={
-                    <InputAdornment
-                      position="start"
-                      className={classes.inputIcon}
-                    >
-                      <PhoneInTalkOutlinedIcon />
-                    </InputAdornment>
-                  }
-                ></OutlinedInput>
-                <OutlinedInput
-                  placeholder="Địa chỉ"
-                  fullWidth={true}
-                  required={true}
-                  onChange={onChangeForm}
-                  value={info.address}
-                  name="address"
-                  className={clsx(classes.inputPeopleCount, classes.inputFont)}
-                  inputProps={{ className: inputText }}
-                  startAdornment={
-                    <InputAdornment
-                      position="start"
-                      className={classes.inputIcon}
-                    >
-                      <HomeOutlinedIcon />
-                    </InputAdornment>
-                  }
-                ></OutlinedInput>
+            <Box>
+            {orderSuccess && orderPayment ? (
+              <Paper>
+                <Box className={classes.titlePay}>
+            <Typography variant="h6">Danh sách sản phẩm</Typography>
+          </Box>
+          <List className={classes.listItem}>
+            <ListItem>
+              <Grid container spacing={2} style={{ padding: "8px" }}>
+                <Grid item md={4}>
+                  <Typography>Tên sản phẩm</Typography>
+                </Grid>
+                <Grid item md={4}>
+                  <Typography>Số lượng</Typography>
+                </Grid>
+                <Grid item md={4}>
+                  <Typography>Giá tiền</Typography>
+                </Grid>
               </Grid>
-            </Paper>
-            <Grid item={true} xs={12}>
-              <Box className={classes.btnBoxContinue}>
-                <Button
-                  className={classes.btnContinue}
-                  color="primary"
-                  size="large"
-                  variant="contained"
-                  onClick={onSubmit}
-                >
-                  Xác nhận
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
+            </ListItem>
+
+            {orderPayment?.items?.map((item, index) => (
+                  <ListItem key={index}>
+                    <Grid className={classes.itemList} container spacing={2}>
+                      <Grid item md={4}>
+                        <Typography>{item.name}</Typography>
+                      </Grid>
+                      <Grid item md={4} className={classes.amountBox}>
+                        <Typography className={classes.inputAmount}>
+                          {item.quantity}
+                        </Typography>
+                      </Grid>
+                      <Grid item md={4}>
+                        <Typography>{formatCash(item.amount)}đ</Typography>
+                      </Grid>
+                    </Grid>
+                  </ListItem>
+                ))
+              }
+            <Box className={classes.boxAmount}>
+              <Typography variant="h6">Tạm tính</Typography>              
+              <Typography variant="h6">{formatCash(orderPayment?.totalAmount*10/11)}đ</Typography>
             </Box>
-          )}
+            {
+              <Box>
+                <Box className={classes.boxAmount}>
+                  <Typography variant="h6">Thuế</Typography>
+                  <Typography variant="h6">10%</Typography>
+                </Box>
+                <Box className={classes.boxAmount}>
+                  <Typography variant="h6">Thành Tiền</Typography>
+                  <Typography variant="h6">{formatCash(orderPayment?.totalAmount)}đ</Typography>
+                </Box>     
+                <Box className={classes.boxAmount}>
+                  <Typography variant="h6">Tổng tiền cần thanh toán</Typography>
+                  <Typography variant="h6">{formatCash(orderPayment?.totalAmount)}đ</Typography>
+                </Box>
+              </Box>
+            }
+          </List>
+          <Box className={classes.timeSchedule}>
+            <Box className={classes.titlePay}>
+              <Typography variant="h4" className={classes.thankyou}>Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi</Typography>
+            </Box>
+          </Box>
+              </Paper>
+              ) : (
+              <Box style={{ width: "100%" }}>
+                <Grid container spacing={2} className={classes.gridForm}>
+              <Paper elevation={1} className={classes.orderPaper} square={false}>
+                <Typography className={classes.titleDetail}>
+                  Thông tin liên hệ
+                </Typography>
+                <Grid item xs={8} className={classes.orderInfo}>
+                  <OutlinedInput
+                    placeholder="Họ và tên *"
+                    fullWidth={true}
+                    onChange={onChangeForm}
+                    name="name"
+                    value={info.name}
+                    className={clsx(classes.inputPeopleCount, classes.inputFont)}
+                    required={true}
+                    inputProps={{ className: inputText }}
+                    startAdornment={
+                      <InputAdornment
+                        position="start"
+                        className={classes.inputIcon}
+                      >
+                        <AccountCircleOutlinedIcon />
+                      </InputAdornment>
+                    }
+                  ></OutlinedInput>
+                  <OutlinedInput
+                    placeholder="Số điện thoại *"
+                    fullWidth={true}
+                    required={true}
+                    type="number"
+                    onChange={onChangeForm}
+                    name="phone"
+                    value={info.phone}
+                    className={clsx(classes.inputPeopleCount, classes.inputFont)}
+                    inputProps={{ className: inputText }}
+                    startAdornment={
+                      <InputAdornment
+                        position="start"
+                        className={classes.inputIcon}
+                      >
+                        <PhoneInTalkOutlinedIcon />
+                      </InputAdornment>
+                    }
+                  ></OutlinedInput>
+                  <OutlinedInput
+                    placeholder="Địa chỉ"
+                    fullWidth={true}
+                    required={true}
+                    onChange={onChangeForm}
+                    value={info.address}
+                    name="address"
+                    className={clsx(classes.inputPeopleCount, classes.inputFont)}
+                    inputProps={{ className: inputText }}
+                    startAdornment={
+                      <InputAdornment
+                        position="start"
+                        className={classes.inputIcon}
+                      >
+                        <HomeOutlinedIcon />
+                      </InputAdornment>
+                    }
+                  ></OutlinedInput>
+                </Grid>
+              </Paper>
+              <Grid item={true} xs={12}>
+                <Box className={classes.btnBoxContinue}>
+                  <Button
+                    className={classes.btnContinue}
+                    color="primary"
+                    size="large"
+                    variant="contained"
+                    onClick={onSubmit}
+                  >
+                    Xác nhận
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
+              </Box>            
+            )}
+            </Box>
+          )
+          }
       </Box>
       </Box>
       <RateDialog onShow={showModal} onClose={()=>setShowModal(false)}></RateDialog>
@@ -1090,6 +1177,36 @@ const useStyle = makeStyles((openInfo) => ({
     //paddingRight: "36px",
     paddingBottom: "9px",
   },
+  titlePay: {
+    width: '50%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    display: ' flex',
+    justifyContent: 'center',
+    marginTop: '10px'
+  },
+  listItem: {
+    paddingLeft: '15%'
+  },
+  itemList: {
+    paddingLeft: '8px',
+    paddingRight: '8px'
+  },
+  boxAmount: {
+    display: 'flex',
+    alignItems: 'center',
+    paddingTop: '15px',
+    marginLeft: '18px',
+    justifyContent: 'space-between',
+    maxWidth: '75%'
+  },
+  timeSchedule: {
+    marginTop: '20px',
+    width: '100%'
+  },
+  thankyou: {
+    textAlign: 'center'
+  }
 }));
 
 export default Order;
